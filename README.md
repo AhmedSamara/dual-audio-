@@ -11,7 +11,9 @@ A bash function for Ubuntu that allows you to play white noise on one Bluetooth 
 ## Why would you ever do this.
 
 Noise cancellation isn't 100% perfect. If you're someone who gets distracted easily and have to work in a noisy environment, it can be nice to have two layers of noise-cancellation (ex: a pair of headphones as well as airpod pros). 
-Using both it works well enough 
+
+One works well enough to muffle a conversation near you.
+Two makes it so you don't know it's happening at all.
 
 ## Requirements
 
