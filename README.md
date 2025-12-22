@@ -5,7 +5,7 @@ A bash function for Ubuntu that allows you to play white noise on one Bluetooth 
 ## What it does
 
 - Plays white noise on one Bluetooth device (e.g., Sony WH-1000XM3)
-- Plays Spotify on a different Bluetooth device (e.g., AirPods Pro)
+- Plays everything else on a different Bluetooth device (e.g., AirPods Pro)
 - Both devices play audio at the same time without interfering with each other
 
 ## Why would you ever do this.
@@ -20,7 +20,6 @@ Two makes it so you don't know it's happening at all.
 - Ubuntu with PulseAudio or PipeWire
 - Two paired Bluetooth audio devices
 - `mpv` audio player (`sudo apt install mpv`)
-- Spotify installed and available from command line
 
 ## Installation
 
