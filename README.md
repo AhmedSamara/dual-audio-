@@ -44,6 +44,12 @@ Simply run:
 dual_audio
 ```
 
+To stop, run: 
+```
+dual_audio stop
+```
+(It will also stop if the device is disconnected.)
+
 This will:
 - Start white noise on your white noise device
 - Start Spotify on your default device

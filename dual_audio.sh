@@ -2,6 +2,18 @@ dual_audio() {
     CONFIG_FILE="$HOME/.config/dual_audio/config"
     mkdir -p "$HOME/.config/dual_audio"
     
+    # Handle stop command
+    if [ "$1" = "stop" ]; then
+        killall mpv 2>/dev/null
+        killall dual_audio 2>/dev/null
+        echo "White noise stopped"
+        return 0
+    fi
+    
+    # Kill any previous instances
+    killall mpv 2>/dev/null
+    killall dual_audio 2>/dev/null
+    
     # Initialize config if it doesn't exist
     if [ ! -f "$CONFIG_FILE" ]; then
         echo "First run setup for dual audio..."
@@ -11,12 +23,12 @@ dual_audio() {
         pactl list sinks | grep -E "Name|Description"
         
         echo ""
-        read -p "Enter the sink name for white noise device: " WHITENOISE_SINK
-        read -p "Enter the sink name for default device: " DEFAULT_SINK
+        read -p "Enter the sink name for white noise device (e.g., bluez_output.70_26_05_E0_BF_18.1): " WHITENOISE_SINK
+        read -p "Enter the sink name for default device (e.g., bluez_output.98_1C_A2_E3_33_43.1): " DEFAULT_SINK
         
         # Interactive file picker
         echo ""
-        echo "Select white noise MP3 file:"
+        echo "Select white noise audio file:"
         cd "$HOME" || return 1
         WHITENOISE_FILE=$(find . -type f \( -name "*.mp3" -o -name "*.wav" -o -name "*.flac" \) 2>/dev/null | nl)
         
@@ -69,9 +81,25 @@ CONFIG
         pactl move-sink-input "$MPVPID" "$WHITENOISE_SINK"
         echo "White noise playing on white noise device"
     else
-        echo "Warning: Could not find mpv stream to move"
+        echo "Warning: Could not find white noise stream to move"
     fi
-
     
     echo "Setup complete!"
+    
+    # Monitor for either device disconnection
+    (
+        while true; do
+            if ! pactl list sinks | grep -q "$WHITENOISE_SINK"; then
+                echo "White noise device disconnected. Stopping white noise."
+                killall mpv 2>/dev/null
+                break
+            fi
+            if ! pactl list sinks | grep -q "$DEFAULT_SINK"; then
+                echo "Default device disconnected. Stopping white noise."
+                killall mpv 2>/dev/null
+                break
+            fi
+            sleep 5
+        done
+    ) &
 }
