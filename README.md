@@ -34,7 +34,7 @@ When you run `dual_audio` for the first time, it will:
 
 1. Show you all available audio devices and ask you to select which one gets white noise
 2. Ask you to select which one should be your default device.
-3. Let you pick your white noise audio file from your home directory. 
+3. Let you pick your white noise audio file from your `~/Music` directory. 
 4. Save all this configuration to `~/.config/dual_audio/config`
 
 ## Usage
@@ -52,7 +52,7 @@ dual_audio stop
 
 This will:
 - Start white noise on your white noise device
-- Start Spotify on your default device
+- Route everything else (your default audio) to your default device
 - Both will play simultaneously
 
 ## Reconfiguring

@@ -5,14 +5,12 @@ dual_audio() {
     # Handle stop command
     if [ "$1" = "stop" ]; then
         killall mpv 2>/dev/null
-        killall dual_audio 2>/dev/null
         echo "White noise stopped"
         return 0
     fi
-    
+
     # Kill any previous instances
     killall mpv 2>/dev/null
-    killall dual_audio 2>/dev/null
     
     # Initialize config if it doesn't exist
     if [ ! -f "$CONFIG_FILE" ]; then
@@ -29,18 +27,17 @@ dual_audio() {
         # Interactive file picker
         echo ""
         echo "Select white noise audio file:"
-        cd "$HOME" || return 1
-        WHITENOISE_FILE=$(find . -type f \( -name "*.mp3" -o -name "*.wav" -o -name "*.flac" \) 2>/dev/null | nl)
-        
-        if [ -z "$WHITENOISE_FILE" ]; then
-            echo "No audio files found in home directory"
+        AUDIO_FILES=$(find "$HOME/Music" -type f \( -name "*.mp3" -o -name "*.wav" -o -name "*.flac" \) 2>/dev/null)
+
+        if [ -z "$AUDIO_FILES" ]; then
+            echo "No audio files found in $HOME/Music"
             return 1
         fi
-        
-        echo "$WHITENOISE_FILE"
+
+        echo "$AUDIO_FILES" | nl
         read -p "Enter the number of your choice: " FILE_NUM
-        
-        WHITENOISE_FILE=$(find "$HOME" -type f \( -name "*.mp3" -o -name "*.wav" -o -name "*.flac" \) 2>/dev/null | sed -n "${FILE_NUM}p")
+
+        WHITENOISE_FILE=$(echo "$AUDIO_FILES" | sed -n "${FILE_NUM}p")
         
         # Validate file exists
         if [ ! -f "$WHITENOISE_FILE" ]; then
