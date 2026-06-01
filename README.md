@@ -23,10 +23,16 @@ Two makes it so you don't know it's happening at all.
 
 ## Installation
 
-Add the function to your `~/.bashrc` file and reload:
+Run the installer. It symlinks `dual_audio` into `~/.local/bin` (which is on
+most Ubuntu users' `PATH`), so the repo file stays the single source of truth —
+edits take effect immediately, no copy-pasting or shell reload:
+
 ```bash
-source ~/.bashrc
+./install.sh
 ```
+
+Then open a new terminal (or run `hash -r`) and use `dual_audio` like any other
+command. To uninstall, just remove the symlink: `rm ~/.local/bin/dual_audio`.
 
 ## First Run Setup
 
@@ -54,6 +60,22 @@ This will:
 - Start white noise on your white noise device
 - Route everything else (your default audio) to your default device
 - Both will play simultaneously
+
+## Controlling volume independently
+
+Each device has its own sink, so you can adjust them separately:
+
+```bash
+dual_audio wn 40      # set white noise device to 40%
+dual_audio def 70     # set default device to 70%
+dual_audio wn +10     # bump white noise up 10%
+dual_audio def -10    # turn default down 10%
+dual_audio wn mute    # toggle mute on the white noise device
+dual_audio def        # show the default device's current volume
+```
+
+- `wn`  = your white noise device
+- `def` = your default device
 
 ## Reconfiguring
 
