@@ -14,6 +14,11 @@
 CONFIG_FILE="$HOME/.config/dual_audio/config"
 mkdir -p "$HOME/.config/dual_audio"
 
+# True if a sink with the exact given name is currently present.
+sink_exists() {
+    pactl list short sinks | awk '{print $2}' | grep -qxF "$1"
+}
+
 # Handle stop command
 if [ "$1" = "stop" ]; then
     killall mpv 2>/dev/null
@@ -106,38 +111,40 @@ fi
 # Load config
 source "$CONFIG_FILE"
 
+# Make sure both configured devices are actually connected before starting.
+if ! sink_exists "$WHITENOISE_SINK"; then
+    echo "Error: white noise device ($WHITENOISE_SINK) is not connected."
+    echo "Connect it and try again, or reconfigure with: rm $CONFIG_FILE && dual_audio"
+    exit 1
+fi
+if ! sink_exists "$DEFAULT_SINK"; then
+    echo "Error: default device ($DEFAULT_SINK) is not connected."
+    echo "Connect it and try again, or reconfigure with: rm $CONFIG_FILE && dual_audio"
+    exit 1
+fi
+
 # Set default device
 pactl set-default-sink "$DEFAULT_SINK"
 
 echo "Starting white noise..."
 
-# Start white noise
-mpv --no-video "$WHITENOISE_FILE" --loop=inf &
+# Play white noise directly on the white noise device. Targeting the sink
+# with --audio-device avoids having to find and move the stream afterward.
+mpv --no-video --loop=inf --audio-device="pulse/$WHITENOISE_SINK" "$WHITENOISE_FILE" &
 WN_PID=$!
 
-# Give it a moment to start
-sleep 2
-
-# Move the white noise stream to its device
-MPVPID=$(pactl list short sink-inputs | grep mpv | awk '{print $1}' | head -1)
-if [ -n "$MPVPID" ]; then
-    pactl move-sink-input "$MPVPID" "$WHITENOISE_SINK"
-    echo "White noise playing on white noise device"
-else
-    echo "Warning: Could not find white noise stream to move"
-fi
-
+echo "White noise playing on white noise device"
 echo "Setup complete!"
 
 # Monitor for either device disconnection
 (
     while true; do
-        if ! pactl list sinks | grep -q "$WHITENOISE_SINK"; then
+        if ! sink_exists "$WHITENOISE_SINK"; then
             echo "White noise device disconnected. Stopping white noise."
             killall mpv 2>/dev/null
             break
         fi
-        if ! pactl list sinks | grep -q "$DEFAULT_SINK"; then
+        if ! sink_exists "$DEFAULT_SINK"; then
             echo "Default device disconnected. Stopping white noise."
             killall mpv 2>/dev/null
             break
