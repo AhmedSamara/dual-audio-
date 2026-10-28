@@ -1,6 +1,6 @@
 # Dual Audio
 
-A bash function for Ubuntu that allows you to play white noise on one Bluetooth device while using Spotify (or other audio) on another simultaneously.
+A small tool for Ubuntu that plays white noise on one Bluetooth device while all your other audio plays on another, with a control window and keyboard shortcuts for adjusting each one.
 
 ## What it does
 
@@ -23,47 +23,70 @@ Two makes it so you don't know it's happening at all.
 
 ## Installation
 
-Run the installer. It symlinks `dual_audio` into `~/.local/bin` (which is on
-most Ubuntu users' `PATH`), so the repo file stays the single source of truth —
-edits take effect immediately, no copy-pasting or shell reload:
+Run the installer:
 
 ```bash
 ./install.sh
 ```
 
-Then open a new terminal (or run `hash -r`) and use `dual_audio` like any other
-command. To uninstall, just remove the symlink: `rm ~/.local/bin/dual_audio`.
+It:
+- symlinks `dual_audio` into `~/.local/bin`, so the repo file stays the single
+  source of truth and edits take effect immediately
+- adds a **Dual Audio** entry to your app launcher
+- offers to add keyboard shortcuts for volume (see below)
 
-## First Run Setup
+Then open a new terminal (or run `hash -r`). To uninstall:
 
-When you run `dual_audio` for the first time, it will:
-
-1. Show you all available audio devices and ask you to select which one gets white noise
-2. Ask you to select which one should be your default device.
-3. Let you pick your white noise audio file from your `~/Music` directory. 
-4. Save all this configuration to `~/.config/dual_audio/config`
-
-## Usage
-
-Simply run:
 ```bash
-dual_audio
+dual_audio shortcuts remove
+rm ~/.local/bin/dual_audio ~/.local/share/applications/dual-audio.desktop
 ```
 
-To stop, run: 
+The control window needs GTK for Python, which Ubuntu ships by default
+(`sudo apt install python3-gi gir1.2-gtk-3.0` if it's missing).
+
+## Control window
+
+Open **Dual Audio** from your app launcher (or run `dual_audio ui`). It has:
+
+- a **Start/Stop** button for the white noise
+- a volume slider and mute button for each device
+- a settings button (gear icon) to choose your devices and white noise file
+
+The first time you open it with no configuration, the settings dialog
+opens automatically. If a device is disconnected, its slider is greyed out.
+
+## Keyboard shortcuts
+
+Add them with `dual_audio shortcuts` (the installer offers this too):
+
+| Shortcut                    | Action                          |
+|-----------------------------|---------------------------------|
+| `Ctrl+Super+Up` / `Down`       | everything else louder / quieter |
+| `Ctrl+Super+Shift+Up` / `Down` | white noise louder / quieter     |
+
+Each press shows a notification with the new level. You can rebind them in
+Settings → Keyboard → Custom Shortcuts, or remove them with
+`dual_audio shortcuts remove`.
+
+## Command line
+
+```bash
+dual_audio            # start white noise (runs setup the first time)
+dual_audio stop       # stop white noise
+dual_audio status     # is white noise playing?
+dual_audio setup      # choose devices and white noise file
+dual_audio ui         # open the control window
+dual_audio help       # show all commands
 ```
-dual_audio stop
-```
-(It will also stop if the device is disconnected.)
 
-This will:
-- Start white noise on your white noise device
-- Route everything else (your default audio) to your default device
-- Both will play simultaneously
+Setup lists your devices by name (e.g. "Ahmed Airpods") and lets you pick by
+number, then lets you pick a white noise file from `~/Music`. Settings are
+saved to `~/.config/dual_audio/config`.
 
-## Controlling volume independently
+White noise stops automatically if either device disconnects.
 
-Each device has its own sink, so you can adjust them separately:
+### Volume
 
 ```bash
 dual_audio wn 40      # set white noise device to 40%
@@ -75,15 +98,7 @@ dual_audio def        # show the default device's current volume
 ```
 
 - `wn`  = your white noise device
-- `def` = your default device
-
-## Reconfiguring
-
-If you need to change your devices or audio file, delete the config file and run `dual_audio` again:
-```bash
-rm ~/.config/dual_audio/config
-dual_audio
-```
+- `def` = your default device (everything else)
 
 ## Troubleshooting
 
